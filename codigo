@@ -1,0 +1,26 @@
+import sqlite3
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+def conectar_db():
+    return sqlite3.connect("despegar.db")
+
+@app.route('/login', methods=['POST'])
+def login_seguro():
+    usuario = request.form.get('usuario')
+    contrasena = request.form.get('contrasena')
+
+    conexion = conectar_db()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM usuarios WHERE usuario=? AND contrasena=?", (usuario, contrasena))
+    resultado = cursor.fetchone()
+    conexion.close()
+
+    if resultado:
+        return jsonify({"mensaje": "Inicio de sesión exitoso"})
+    else:
+        return jsonify({"mensaje": "Credenciales incorrectas"})
+
+if __name__ == '__main__':
+    app.run(debug=True)
